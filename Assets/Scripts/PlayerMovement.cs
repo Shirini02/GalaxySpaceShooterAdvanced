@@ -5,8 +5,9 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
+    public bool Trippleshot = false;
     [SerializeField] float moveSpeed;//speed of player to move 
-    [SerializeField] GameObject laserPrefab;//prefab for instantiating
+    [SerializeField] GameObject laserPrefab,triplelaserprefab;//prefab for instantiating
     float canfire=0f;//counting with fire rate
     [SerializeField]float fireRate;//for how many seconds the laser instantiate
     // Start is called before the first frame update
@@ -18,26 +19,41 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         //Player input movement along axis
-        if (Input.GetKey(KeyCode.RightArrow)||Input.GetKey(KeyCode.LeftArrow))
+        if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.LeftArrow))
         {
             Key(Vector3.right, Input.GetAxis("Horizontal"));
         }
-        else if (Input.GetKey(KeyCode.UpArrow)||Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
         {
             Key(Vector3.up, Input.GetAxis("Vertical"));
         }
         //Player  Boundarys in x and y direction
-        XYDirection(transform.position.x,transform.position.y);
+        XYDirection(transform.position.x, transform.position.y);
+        Shoot();
+    }
+
+    private void Shoot()
+    {
         //Instantiating laser using prefab and firerate
-        if (Input.GetKeyDown(KeyCode.Space)||Input.GetMouseButton(0))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButton(0))
         {
             if (Time.time > canfire)
             {
-                Instantiate(laserPrefab, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
+                if(Trippleshot==true)
+                {
+                    Instantiate(triplelaserprefab, transform.position, Quaternion.identity);
+                    
+                }
+                else
+                {
+                    Instantiate(laserPrefab, transform.position + new Vector3(0, 1f, 0), Quaternion.identity);
+                }
+              
                 canfire = Time.time + fireRate;
             }
         }
     }
+
     //Method for x and y boundarys for player
     private void XYDirection(float Xval,float Yval)
     {
@@ -62,5 +78,15 @@ public class PlayerMovement : MonoBehaviour
     public void Key(Vector3 vector,float axis)
     {
         transform.Translate(vector * Time.deltaTime * moveSpeed * axis);
+    }
+    public void trippleshotpowerup()
+    {
+        Trippleshot = true;
+        StartCoroutine(Tripleshotpowerdown());
+    }
+   public IEnumerator Tripleshotpowerdown()
+    {
+        yield return new WaitForSeconds(5.0f);
+        Trippleshot = false;
     }
 }
